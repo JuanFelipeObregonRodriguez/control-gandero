@@ -1,0 +1,23 @@
+.ng-invalid.ng-dirty {
+	border-color: #FA787E;
+}
+!.ng-valid.ng-dirty {
+	border-color: #78FA89;
+}
+
+#main{
+	margin-top: 40px;
+}
+
+h1{
+	margin-left: 0;
+}
+
+.acoes{
+	text-align: right;
+}
+
+.only-print{
+	display: none;
+}
+

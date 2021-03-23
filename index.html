@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html ng-app="cattleControl">
+	<head>
+		<meta charset="utf-8">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	    <meta name="viewport" content="width=device-width, initial-scale=1">
+	    <title>Cattle control</title>
+		<link rel="stylesheet" type="text/css" href="bower_components/bootstrap/dist/css/bootstrap.css">
+		<link rel="stylesheet" type="text/css" href="css/style.css">
+		<link rel="stylesheet" type="text/css" href="css/print.css" media="print">
+		<script type="text/javascript" src="bower_components/angular/angular.min.js"></script>
+		<script type="text/javascript" src="bower_components/angular-bootstrap/ui-bootsrap.min.js"></script>
+		<script type="text/javascript" src="bower_components/angular-local-storage/dist/angular-local-storage.min.js"></script>
+		<script type="text/javascript" src="app/app.js"></script>
+		<script type="text/javascript" src="app/modules/modules.js"></script>
+		<script type="text/javascript" src="app/color/color-repository.js"></script>
+		<script type="text/javascript" src="app/color/color-controller.js"></script>
+		<script type="text/javascript" src="app/cattle/cattle-repository.js"></script>
+		<script type="text/javascript" src="app/cattle/cattle-controller.js"></script>
+		<script type="text/javascript" src="app/race/race-repository.js"></script>
+		<script type="text/javascript" src="app/race/race-controller.js"></script>
+		<script type="text/javascript" src="app/field/field-repository.js"></script>
+		<script type="text/javascript" src="app/field/field-controller.js"></script>
+		<script type="text/javascript" src="app/type/type-repository.js"></script>
+		<script type="text/javascript" src="app/type/type-controller.js"></script>
+		<script type="text/javascript" src="app/property/property-repository.js"></script>
+		<script type="text/javascript" src="app/property/property-controller.js"></script>
+		<script type="text/javascript" src="app/controllers/navigation-controller.js"></script>
+		<script type="text/javascript" src="app/controllers/report-controller.js"></script>
+	</head>
+	<body ng-controller="navigationController as navigation">
+		<nav class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+			<div class="container">
+				<div class="navbar-header">
+				  <button type="button" class="navbar-toggle" data-toggle="collapse" ng-click="navigation.navbarCollapsed = !navigation.navbarCollapsed" aria-expanded="false" aria-controls="navbar">
+				    <span class="sr-only">Toggle navigation</span>
+				    <span class="icon-bar"></span>
+				    <span class="icon-bar"></span>
+				    <span class="icon-bar"></span>
+				  </button>
+				  <a class="navbar-brand" href="#">Finca Leon</a>
+				</div>
+				<div id="navbar" class="collapse navbar-collapse" collapse="navigation.navbarCollapsed">
+					<ul class="nav navbar-nav">
+						<li ng-class="{active:navigation.isSelected('cattle')}">
+							<a href ng-click="navigation.selectTab('cattle')">Ganado</a>
+						</li>
+						<li ng-class="{active:navigation.isSelected('field')}">
+							<a href ng-click="navigation.selectTab('field')">Pastar</a>
+						</li>
+						<li ng-class="{active:navigation.isSelected('property')}">
+							<a href ng-click="navigation.selectTab('property')">Lote</a>
+						</li>
+						<li ng-class="{active:navigation.isSelected('type')}">
+							<a href ng-click="navigation.selectTab('type')">Tipo</a>
+						</li>
+						<li ng-class="{active:navigation.isSelected('race')}">
+							<a href ng-click="navigation.selectTab('race')">Raza</a>
+						</li>
+						<li ng-class="{active:navigation.isSelected('color')}">
+							<a href ng-click="navigation.selectTab('color')">Color</a>
+						</li>
+						<li ng-class="{active:navigation.isSelected('report')}">
+							<a href ng-click="navigation.selectTab('report')">Reporte</a>
+						</li>
+					</ul>
+				  	<ul class="nav navbar-nav navbar-right">
+					  	<li class="btn-group" dropdown is-open="status.isopen">
+					      <a class="dropdown-toggle for-print" ng-disabled="disabled">
+					        {{navigation.property.name}}<span class="caret"></span>
+					      </a>
+					      <ul class="dropdown-menu" role="menu">
+					      	<li ng-repeat="property in navigation.properties">
+					      		<a href ng-click="navigation.setProperty(property)">{{property.name}}</a>
+					      	</li>
+					      </ul>
+					    </li>
+            </ul>
+				</div>
+			</div>
+		</nav>
+		<div id="main" class="container" role="main">
+			<h1>{{navigation.property.name}}</h1>
+			<div ng-controller="cattleController as cc" class="row" ng-show="navigation.isSelected('cattle')">
+				<h2 class="no-print">Inclusión de ganado</h2>
+				<form class="no-print" name="cattle" ng-submit="cc.save(navigation.property)" novalidate class="col-md-12" role="form">
+					<div class="form-group">
+					    <label class="col-sm-2" for="number">numero</label>
+					    <div class="col-sm-10">
+							<input type="number" id="number" ng-model="cc.cattle.number" class="form-control" required \>
+						</div>
+					</div>
+					<div class="form-group">
+					    <label class="col-sm-2" for="field">Pastar</label>
+					    <div class="col-sm-10">
+						    <select ng-model="cc.cattle.field" id="field"  class="form-control" required>
+								<option ng-repeat="field in cc.fields | filter:{ property:{id:navigation.property.id}}"
+									value="{{field.id}}">{{field.name}}</option>
+							</select>
+						</div>
+					</div>
+					<div class="form-group">
+					    <label class="col-sm-2" for="type">Tipo</label>
+					    <div class="col-sm-10">
+							<select ng-model="cc.cattle.type" id="type" class="form-control" required>
+								<option ng-repeat="type in cc.types" value="{{type.name}}">{{type.name}}</option>
+							</select>
+						</div>
+					</div>
+					<div class="form-group">
+					    <label class="col-sm-2" for="type">Raza</label>
+					    <div class="col-sm-10">
+							<select ng-model="cc.cattle.race" id="race" class="form-control">
+								<option ng-repeat="race in cc.races" value="{{race.name}}">{{race.name}}</option>
+							</select>
+						</div>
+					</div>
+					<div class="form-group">
+					    <label class="col-sm-2" for="hasHorns">Tiene cuernos</label>
+					    <div class="col-sm-10">
+							<select ng-model="cc.cattle.hasHorns" id="hasHorns"  class="form-control">
+								<option value="sim">Si</option>
+								<option value="não">No</option>
+							</select>
+						</div>
+					</div>
+					<div class="form-group">
+					    <label class="col-sm-2" for="age">Años de edad</label>
+					    <div class="col-sm-10">
+							<input type="number" ng-model="cc.cattle.age" class="form-control" id="age" \>
+						</div>
+					</div>
+					<div class="form-group">
+					    <label class="col-sm-2" for="color">Color</label>
+					    <div class="col-sm-10">
+							<select ng-model="cc.cattle.color" class="form-control" id="color">
+								<option ng-repeat="color in cc.colors" value="{{color.name}}">{{color.name}}</option>
+							</select>
+						</div>
+					</div>
+					<div class="form-group">
+					    <div class="col-sm-offset-2 col-sm-10">
+							<button type="submit" class="btn btn-default">guardar</button>
+					    </div>
+					</div>
+				</form>
+				<div class="col-md-12">&nbsp;</div>
+				<h2>Lista del ganado</h2>
+				<table class="col-md-12 table table-striped">
+					<tr>
+						<th>Pastar</th>
+						<th>Numero</th>
+						<th>escribe</th>
+						<th>Raza</th>
+						<th>edad</th>
+						<th>Color</th>
+						<th>Tiene cuernos</th>
+						<th class="acoes"></th>
+					</tr>
+					<tr ng-repeat="cattle in cc.cattles | filter:{ property:{id:navigation.property.id}} | orderBy:field">
+						<td>{{cattle.field}}</td>
+						<td>{{cattle.number}}</td>
+						<td>{{cattle.type}}</td>
+						<td>{{cattle.race}}</td>
+						<td>{{cattle.age}}</td>
+						<td>{{cattle.color}}</td>
+						<td>{{cattle.hasHorns}}</td>
+						<td class="acoes">
+							<a href ng-click="cc.edit(cattle)">Editar</a> |
+							<a href ng-click="cc.delete(cattle)">Eliminar</a>
+						</td>
+					</tr>
+				</table>
+			</div>
+			<div ng-controller="fieldController as fc" class="row" ng-show="navigation.isSelected('field')">
+				<h2>Inclusión de pastos</h2>
+				<form name="field" ng-submit="fc.save(navigation.property)" novalidate class="col-md-12" role="form">
+					<div class="form-group">
+					    <label class="col-sm-2" for="name">Nombre</label>
+					    <div class="col-sm-10">
+							<input type="text" id="name" ng-model="fc.field.name" class="form-control" required \>
+						</div>
+					</div>
+					<div class="form-group">
+					    <div class="col-sm-offset-2 col-sm-10">
+							<button type="submit" class="btn btn-default">Salvar</button>
+					    </div>
+					</div>
+				</form>
+				<div class="col-md-12">&nbsp;</div>
+				<h2>Lista de pastos</h2>
+				<table class="col-md-12 table table-striped table-hover">
+					<tr>
+						<th>Pastar</th>
+						<th></th>
+					</tr>
+					<tr ng-repeat="field in fc.fields | filter:{ property:{id:navigation.property.id} }">
+						<td>{{field.name}}</td>
+						<td class="acoes">
+							<a href ng-click="fc.edit(field)">Editar</a> |
+							<a href ng-click="fc.delete(field)">Excluir</a>
+						</td>
+					</tr>
+				</table>
+			</div>
+			<div ng-controller="propertyController as pc" class="row" ng-show="navigation.isSelected('property')">
+				<h2>Inclusión de propiedad</h2>
+				<form name="field" ng-submit="pc.save(navigation.properties)" novalidate class="col-md-12" role="form">
+					<div class="form-group">
+					    <label class="col-sm-2" for="name">Nombre</label>
+					    <div class="col-sm-10">
+							<input type="text" id="name" ng-model="pc.property.name" class="form-control" required \>
+						</div>
+					</div>
+					<div class="form-group">
+					    <div class="col-sm-offset-2 col-sm-10">
+							<button type="submit" class="btn btn-default">guardar</button>
+					    </div>
+					</div>
+				</form>
+				<div class="col-md-12">&nbsp;</div>
+				<h2>Inclusion de lote</h2>
+				<table class="col-md-12 table table-striped">
+					<tr>
+						<th>Lote</th>
+						<th></th>
+					</tr>
+					<tr ng-repeat="property in pc.properties">
+						<td>{{property.name}}</td>
+						<td class="acoes">
+							<a href ng-click="pc.edit(property)">Editar</a> |
+							<a href ng-click="pc.delete(property)">Eliminar</a>
+						</td>
+					</tr>
+				</table>
+			</div>
+			<div ng-controller="typeController as tc" class="row" ng-show="navigation.isSelected('type')">
+				<h2>Tipo de inclusión</h2>
+				<form name="field" ng-submit="tc.save()" novalidate class="col-md-12" role="form">
+					<div class="form-group">
+					    <label class="col-sm-2" for="name">Nombre</label>
+					    <div class="col-sm-10">
+							<input type="text" id="name" ng-model="tc.type.name" class="form-control" required \>
+						</div>
+					</div>
+					<div class="form-group">
+					    <div class="col-sm-offset-2 col-sm-10">
+							<button type="submit" class="btn btn-default">Salvar</button>
+					    </div>
+					</div>
+				</form>
+				<div class="col-md-12">&nbsp;</div>
+				<h2>Lista de tipo</h2>
+				<table class="col-md-12 table table-striped">
+					<tr>
+						<th>Tipo</th>
+						<th></th>
+					</tr>
+					<tr ng-repeat="type in tc.types">
+						<td>{{type.name}}</td>
+						<td class="acoes">
+							<a href ng-click="tc.edit(type)">Editar</a> |
+							<a href ng-click="tc.delete(type)">eliminar</a>
+						</td>
+					</tr>
+				</table>
+			</div>
+			<div ng-controller="raceController as rac" class="row" ng-show="navigation.isSelected('race')">
+				<h2>Tipo de inclusión</h2>
+				<form name="field" ng-submit="rac.save()" novalidate class="col-md-12" role="form">
+					<div class="form-group">
+					    <label class="col-sm-2" for="name">Nombre</label>
+					    <div class="col-sm-10">
+							<input type="text" id="name" ng-model="rac.race.name" class="form-control" required \>
+						</div>
+					</div>
+					<div class="form-group">
+					    <div class="col-sm-offset-2 col-sm-10">
+							<button type="submit" class="btn btn-default">guardar</button>
+					    </div>
+					</div>
+				</form>
+				<div class="col-md-12">&nbsp;</div>
+				<h2>Lista de tipos</h2>
+				<table class="col-md-12 table table-striped">
+					<tr>
+						<th>Raza</th>
+						<th></th>
+					</tr>
+					<tr ng-repeat="race in rac.races">
+						<td>{{race.name}}</td>
+						<td class="acoes">
+							<a href ng-click="rac.edit(race)">Editar</a> |
+							<a href ng-click="rac.delete(race)">Eliminar</a>
+						</td>
+					</tr>
+				</table>
+			</div>
+			<div ng-controller="colorController as coc" class="row" ng-show="navigation.isSelected('color')">
+				<h2>Inclusión de razas</h2>
+				<form name="field" ng-submit="coc.save()" novalidate class="col-md-12" role="form">
+					<div class="form-group">
+					    <label class="col-sm-2" for="name">Nombre</label>
+					    <div class="col-sm-10">
+							<input type="text" id="name" ng-model="coc.color.name" class="form-control" required \>
+						</div>
+					</div>
+					<div class="form-group">
+					    <div class="col-sm-offset-2 col-sm-10">
+							<button type="submit" class="btn btn-default">guardar</button>
+					    </div>
+					</div>
+				</form>
+				<div class="col-md-12">&nbsp;</div>
+				<h2>Lista de colores</h2>
+				<table class="col-md-12 table table-striped">
+					<tr>
+						<th>Color</th>
+						<th></th>
+					</tr>
+					<tr ng-repeat="color in coc.colors">
+						<td>{{color.name}}</td>
+						<td class="acoes">
+							<a href ng-click="coc.edit(color)">Editar</a> |
+							<a href ng-click="coc.delete(color)">Eliminar</a>
+						</td>
+					</tr>
+				</table>
+			</div>
+			<div ng-controller="reportController as rc" class="row" ng-show="navigation.isSelected('report')">
+				<h2>Reporte</h2>
+				<div ng-repeat="field in rc.report">
+					<h3>pastar: {{field.field.name}}</h3>
+					<table class="table table-striped">
+						<tr ng-repeat="type in field.types">
+							<td class="col-md-6">{{type.type.name}}</td>
+							<td class="col-md-6">{{type.qtd}}</td>
+						</tr>
+					</table>
+				</div>
+			</div>
+		</div>
+	</body>
+</html>
